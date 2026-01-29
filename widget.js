@@ -1,5 +1,5 @@
 (() => {
-  const API_URL = "http://localhost:3000/chat"; // потом заменим на прод-URL
+  onst API_URL = "https://huge-bikes-take.loca.lt/chat"; // потом заменим на прод-URL
 
   // UI
   const btn = document.createElement("button");
