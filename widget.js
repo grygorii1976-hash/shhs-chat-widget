@@ -1,5 +1,5 @@
 (() => {
-  onst API_URL = "https://huge-bikes-take.loca.lt/chat"; // потом заменим на прод-URL
+ const API_URL = "https://shhs-chat-backend.onrender.com/chat"; // потом заменим на прод-URL
 
   // UI
   const btn = document.createElement("button");
