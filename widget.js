@@ -10,7 +10,7 @@ function initChat() {
   
   const btn = document.createElement("button");
   // Updated with logo
-  btn.innerHTML = '<img src="https://static.tildacdn.com/tild6338-6235-4131-b836-373731393431/ChatGPT_Image_Jan_22.png" style="width:28px;height:28px;margin-right:8px;object-fit:contain;display:inline-block;vertical-align:middle;" alt="Skillful Hands"><span style="vertical-align:middle;">Chat</span>';
+  btn.innerHTML = '<img src="https://static.tildacdn.com/tild6338-6235-4131-b836-373731393431/ChatGPT_Image_Jan_22.png" style="width:48px;height:48px;margin-right:8px;object-fit:contain;display:inline-block;vertical-align:middle;" alt="Skillful Hands"><span style="vertical-align:middle;">Chat</span>';
   btn.style.cssText = "position:fixed;right:20px;bottom:20px;z-index:999999;padding:12px 20px;background:#6366f1;color:#fff;border:none;border-radius:50px;font-size:16px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.15);font-weight:600;transition:transform 0.2s;display:flex;align-items:center;";
   
   btn.onmouseenter = function() { btn.style.transform = "scale(1.05)"; };
