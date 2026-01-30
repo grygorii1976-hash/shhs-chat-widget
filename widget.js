@@ -6,27 +6,12 @@ if (document.readyState === "loading") {
 
 function initChat() {
   const API_URL = "https://shhs-chat-backend.onrender.com/chat";
-  
-  let sessionId = localStorage.getItem("shhs_chat_session");
-  if (!sessionId) {
-    sessionId = "session_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
-    localStorage.setItem("shhs_chat_session", sessionId);
-  }
-  
-  let conversationHistory = [];
-  try {
-    const saved = localStorage.getItem("shhs_chat_history");
-    if (saved) {
-      conversationHistory = JSON.parse(saved);
-    }
-  } catch (e) {
-    console.error("Failed to load history:", e);
-    conversationHistory = [];
-  }
+  const conversationHistory = [];
   
   const btn = document.createElement("button");
-  btn.innerText = "💬 Chat";
-  btn.style.cssText = "position:fixed;right:20px;bottom:20px;z-index:999999;padding:12px 20px;background:#6366f1;color:#fff;border:none;border-radius:50px;font-size:16px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.15);font-weight:600;transition:transform 0.2s;";
+  // Updated with logo
+  btn.innerHTML = '<img src="https://static.tildacdn.com/tild6338-6235-4131-b836-373731393431/ChatGPT_Image_Jan_22.png" style="width:28px;height:28px;margin-right:8px;object-fit:contain;display:inline-block;vertical-align:middle;" alt="Skillful Hands"><span style="vertical-align:middle;">Chat</span>';
+  btn.style.cssText = "position:fixed;right:20px;bottom:20px;z-index:999999;padding:12px 20px;background:#6366f1;color:#fff;border:none;border-radius:50px;font-size:16px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.15);font-weight:600;transition:transform 0.2s;display:flex;align-items:center;";
   
   btn.onmouseenter = function() { btn.style.transform = "scale(1.05)"; };
   btn.onmouseleave = function() { btn.style.transform = "scale(1)"; };
@@ -34,7 +19,7 @@ function initChat() {
   const box = document.createElement("div");
   box.style.cssText = "position:fixed;right:20px;bottom:80px;z-index:999999;width:380px;max-width:calc(100vw - 40px);height:550px;background:#fff;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,0.15);display:none;flex-direction:column;";
   
-  box.innerHTML = '<div style="padding:16px;background:#6366f1;color:#fff;border-radius:16px 16px 0 0;display:flex;justify-content:space-between;align-items:center;"><div><div style="font-weight:600;font-size:16px;">Skillful Hands</div><div style="font-size:12px;opacity:0.9;">Usually replies instantly</div></div><div style="display:flex;gap:8px;align-items:center;"><button id="shhsReset" title="Start new conversation" style="border:none;background:transparent;color:#fff;font-size:18px;cursor:pointer;padding:4px;opacity:0.8;">🔄</button><button id="shhsClose" style="border:none;background:transparent;color:#fff;font-size:24px;cursor:pointer;padding:0;width:28px;height:28px;">×</button></div></div><div id="shhsMsgs" style="padding:16px;flex:1;overflow:auto;background:#f9fafb;"></div><form id="shhsForm" style="display:flex;gap:8px;padding:12px;border-top:1px solid #e5e7eb;background:#fff;"><input id="shhsInput" placeholder="Type your message..." style="flex:1;padding:10px 14px;border:1px solid #e5e7eb;border-radius:20px;outline:none;font-size:14px;" /><button type="submit" style="padding:10px 16px;border:none;border-radius:20px;background:#6366f1;color:#fff;cursor:pointer;font-weight:600;">Send</button></form>';
+  box.innerHTML = '<div style="padding:16px;background:#6366f1;color:#fff;border-radius:16px 16px 0 0;display:flex;justify-content:space-between;align-items:center;"><div><div style="font-weight:600;font-size:16px;">Skillful Hands</div><div style="font-size:12px;opacity:0.9;">Usually replies instantly</div></div><button id="shhsClose" style="border:none;background:transparent;color:#fff;font-size:24px;cursor:pointer;padding:0;width:28px;height:28px;">×</button></div><div id="shhsMsgs" style="padding:16px;flex:1;overflow:auto;background:#f9fafb;"></div><form id="shhsForm" style="display:flex;gap:8px;padding:12px;border-top:1px solid #e5e7eb;background:#fff;"><input id="shhsInput" placeholder="Type your message..." style="flex:1;padding:10px 14px;border:1px solid #e5e7eb;border-radius:20px;outline:none;font-size:14px;" /><button type="submit" style="padding:10px 16px;border:none;border-radius:20px;background:#6366f1;color:#fff;cursor:pointer;font-weight:600;">Send</button></form>';
   
   document.body.appendChild(btn);
   document.body.appendChild(box);
@@ -43,22 +28,9 @@ function initChat() {
   const form = box.querySelector("#shhsForm");
   const input = box.querySelector("#shhsInput");
   const closeBtn = box.querySelector("#shhsClose");
-  const resetBtn = box.querySelector("#shhsReset");
   const sendBtn = form.querySelector('button[type="submit"]');
   
-  function restoreHistory() {
-    msgs.innerHTML = "";
-    if (conversationHistory.length === 0) {
-      var welcomeMsg = "Hi! 👋 I'm here to help with any handyman services. What can we help you with today?";
-      addMsg(welcomeMsg, "bot");
-      conversationHistory.push({ role: "assistant", content: welcomeMsg });
-      saveHistory();
-    } else {
-      conversationHistory.forEach(function(msg) {
-        addMsg(msg.content, msg.role === "user" ? "user" : "bot");
-      });
-    }
-  }
+  let isFirstOpen = true;
   
   function addMsg(text, who) {
     const p = document.createElement("div");
@@ -73,19 +45,11 @@ function initChat() {
     msgs.scrollTop = msgs.scrollHeight;
   }
   
-  function saveHistory() {
-    try {
-      localStorage.setItem("shhs_chat_history", JSON.stringify(conversationHistory));
-      console.log("History saved:", conversationHistory.length, "messages");
-    } catch (e) {
-      console.error("Failed to save history:", e);
-    }
-  }
-  
   async function send(text) {
     addMsg(text, "user");
     conversationHistory.push({ role: "user", content: text });
-    saveHistory();
+    
+    console.log("📤 Sending to API. History length:", conversationHistory.length);
     
     input.value = "";
     input.disabled = true;
@@ -99,11 +63,6 @@ function initChat() {
     msgs.scrollTop = msgs.scrollHeight;
     
     try {
-      console.log("Sending to API:", {
-        message: text,
-        historyLength: conversationHistory.length
-      });
-      
       const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -125,18 +84,13 @@ function initChat() {
       addMsg(reply, "bot");
       conversationHistory.push({ role: "assistant", content: reply });
       
-      if (conversationHistory.length > 30) {
-        conversationHistory = conversationHistory.slice(-30);
-      }
-      
-      saveHistory();
-      console.log("Response received, total messages:", conversationHistory.length);
+      console.log("📥 Response received. History length:", conversationHistory.length);
       
     } catch (e) {
       const typing = document.getElementById("typing");
       if (typing) typing.remove();
       addMsg("Sorry, I'm having trouble. Please try again or call us directly.", "bot");
-      console.error("Chat error:", e);
+      console.error("❌ Chat error:", e);
     } finally {
       input.disabled = false;
       sendBtn.disabled = false;
@@ -147,22 +101,19 @@ function initChat() {
   btn.onclick = function() {
     const isHidden = box.style.display === "none";
     box.style.display = isHidden ? "flex" : "none";
-    if (isHidden) {
-      restoreHistory();
+    if (isHidden && isFirstOpen) {
+      const welcomeMsg = "Hi! 👋 I'm here to help with any handyman services. What can we help you with today?";
+      addMsg(welcomeMsg, "bot");
+      conversationHistory.push({ role: "assistant", content: welcomeMsg });
+      isFirstOpen = false;
+      input.focus();
+    } else if (isHidden) {
       input.focus();
     }
   };
   
   closeBtn.onclick = function() {
     box.style.display = "none";
-  };
-  
-  resetBtn.onclick = function() {
-    if (confirm("Start a new conversation? This will clear the current chat.")) {
-      conversationHistory = [];
-      localStorage.removeItem("shhs_chat_history");
-      restoreHistory();
-    }
   };
   
   form.onsubmit = function(e) {
