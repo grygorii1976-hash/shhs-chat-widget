@@ -21,6 +21,7 @@ function initChat() {
     }
   } catch (e) {
     console.error("Failed to load history:", e);
+    conversationHistory = [];
   }
   
   const btn = document.createElement("button");
@@ -48,7 +49,10 @@ function initChat() {
   function restoreHistory() {
     msgs.innerHTML = "";
     if (conversationHistory.length === 0) {
-      addMsg("Hi! 👋 I'm here to help with any handyman services. What can we help you with today?", "bot");
+      var welcomeMsg = "Hi! 👋 I'm here to help with any handyman services. What can we help you with today?";
+      addMsg(welcomeMsg, "bot");
+      conversationHistory.push({ role: "assistant", content: welcomeMsg });
+      saveHistory();
     } else {
       conversationHistory.forEach(function(msg) {
         addMsg(msg.content, msg.role === "user" ? "user" : "bot");
@@ -72,6 +76,7 @@ function initChat() {
   function saveHistory() {
     try {
       localStorage.setItem("shhs_chat_history", JSON.stringify(conversationHistory));
+      console.log("History saved:", conversationHistory.length, "messages");
     } catch (e) {
       console.error("Failed to save history:", e);
     }
@@ -79,7 +84,6 @@ function initChat() {
   
   async function send(text) {
     addMsg(text, "user");
-    
     conversationHistory.push({ role: "user", content: text });
     saveHistory();
     
@@ -95,12 +99,17 @@ function initChat() {
     msgs.scrollTop = msgs.scrollHeight;
     
     try {
+      console.log("Sending to API:", {
+        message: text,
+        historyLength: conversationHistory.length
+      });
+      
       const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           message: text,
-          history: conversationHistory.slice(-10)
+          history: conversationHistory
         })
       });
       
@@ -114,7 +123,6 @@ function initChat() {
       const reply = data.reply || "Sorry, I didn't get that.";
       
       addMsg(reply, "bot");
-      
       conversationHistory.push({ role: "assistant", content: reply });
       
       if (conversationHistory.length > 30) {
@@ -122,6 +130,7 @@ function initChat() {
       }
       
       saveHistory();
+      console.log("Response received, total messages:", conversationHistory.length);
       
     } catch (e) {
       const typing = document.getElementById("typing");
